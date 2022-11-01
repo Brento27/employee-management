@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "name": "hradmin",
+    "builds": [
+      { "src": "server.cjs", "use": "@now/node" }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/server.cjs" }
+    ]
+  }
