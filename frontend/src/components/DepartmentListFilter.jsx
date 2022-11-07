@@ -30,7 +30,7 @@ function DepartmentListFilter() {
   };
   return (
     <>
-      <div className='px-6 h-full flex gap-4'>
+      <div className='px-6 h-full flex justify-between gap-4'>
         <Menu />
         <div className='border-2 rounded-2xl border-primary w-full flex flex-col p-4 gap-4 bg-white'>
           <p className='text-3xl'>Departments</p>

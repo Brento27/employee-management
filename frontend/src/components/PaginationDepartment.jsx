@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 function PaginationDepartment({ selectCurrentPage }) {
+  const [selectedPage, setSelectedPage] = useState(1);
   const departmentListFilter = useSelector(
     (state) => state.departmentListFilter
   );
@@ -17,10 +18,11 @@ function PaginationDepartment({ selectCurrentPage }) {
     <div className='btn-group px-6 mb-6 '>
       {buttonArray.map((x) => (
         <button
-          className='btn btn-primary'
+          className={`btn ${selectedPage == x && 'btn-active'}`}
           value={x}
           onClick={(e) => {
             selectCurrentPage(e.target.value);
+            setSelectedPage(x);
           }}
         >
           {x}

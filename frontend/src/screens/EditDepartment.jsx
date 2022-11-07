@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import EditDepartmentForm from '../components/EditDepartmentForm';
 import Menu from '../components/Menu';
 import NavBar from '../components/NavBar';
+import { USER_REGISTER_RESET } from '../constants/userConstants';
+import { DEPARTMENT_REGISTER_RESET } from '../constants/departmentConstants';
 
 function EditDepartment() {
   const navigate = useNavigate();
@@ -23,13 +25,19 @@ function EditDepartment() {
     } else {
       navigate('/login');
     }
+    dispatch({
+      type: USER_REGISTER_RESET,
+    });
+    dispatch({
+      type: DEPARTMENT_REGISTER_RESET,
+    });
   }, [dispatch, userInfo]);
   return (
     <div>
       <NavBar />
       <div className='px-6 h-full flex gap-4'>
         <Menu />
-        <div className='w-full h-full'>
+        <div className='w-full h-full border-2 border-primary rounded-2xl p-6 mb-4 bg-white'>
           <p className='font-bold text-3xl'>Edit Departments</p>
           <EditDepartmentForm />
         </div>

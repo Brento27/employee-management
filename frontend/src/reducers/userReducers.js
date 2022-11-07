@@ -29,6 +29,7 @@ import {
   USER_LIST_FILTER_SUCCESS,
   USER_LIST_FILTER_FAIL,
   USER_LIST_FILTER_RESET,
+  USER_REGISTER_RESET,
 } from '../constants/userConstants';
 
 export const userLoginReducer = (state = {}, action) => {
@@ -49,11 +50,13 @@ export const userLoginReducer = (state = {}, action) => {
 export const userRegisterReducer = (state = {}, action) => {
   switch (action.type) {
     case USER_REGISTER_REQUEST:
-      return { loading: true };
+      return { loadingRegister: true };
     case USER_REGISTER_SUCCESS:
-      return { loading: false, userInfo: action.payload };
+      return { loadingRegister: false, userInfoRegister: action.payload };
     case USER_REGISTER_FAIL:
-      return { loading: false, error: action.payload };
+      return { loadingRegister: false, error: action.payload };
+    case USER_REGISTER_RESET:
+      return {};
     case USER_LOGOUT:
       return {};
     default:
@@ -144,11 +147,11 @@ export const userDeleteReducer = (state = {}, action) => {
 export const userUpdateReducer = (state = { user: {} }, action) => {
   switch (action.type) {
     case USER_UPDATE_REQUEST:
-      return { loading: true };
+      return { loadingUserUpdate: true };
     case USER_UPDATE_SUCCESS:
-      return { loading: false, success: true };
+      return { loadingUserUpdate: false, success: true };
     case USER_UPDATE_FAIL:
-      return { loading: false, error: action.payload };
+      return { loadingUserUpdate: false, error: action.payload };
     case USER_UPDATE_RESET:
       return {
         user: {},

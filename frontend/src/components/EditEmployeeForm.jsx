@@ -1,15 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   updateUser,
   updateUserProfile,
   getUserDetails,
 } from '../actions/userActions';
+import Loader from './Loader';
+import { BiSave } from 'react-icons/bi';
+import { TiCancel } from 'react-icons/ti';
 
 function EditEmployeeForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const initialValues = {
+    firstName: '',
+    lastName: '',
+    telephoneNumber: '',
+    email: '',
+    department: 'select',
+    status: '',
+  };
+
+  const [formValues, setFormValues] = useState(initialValues);
+  const [formErrors, setFormErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const { userId } = useParams();
 
   const departmentList = useSelector((state) => state.departmentList);
   const { departments } = departmentList;
@@ -20,166 +38,236 @@ function EditEmployeeForm() {
   const userDetails = useSelector((state) => state.userDetails);
   const { user, loading } = userDetails;
 
-  const { userId } = useParams();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [telephoneNumber, setTelephoneNumber] = useState('');
-  const [status, setStatus] = useState('');
-  const [email, setEmail] = useState('');
-  const [department, setDepartment] = useState({});
-  const [departmentsArray, setDepartmentsArray] = useState([]);
-
   const saveHandler = (e) => {
-    try {
-      e.preventDefault();
-      if (userInfo.isManager) {
-        dispatch(
-          updateUser({
-            _id: userId,
-            firstName,
-            lastName,
-            telephoneNumber,
-            email,
-            status,
-            department,
-          })
-        );
+    setFormErrors(validate(formValues));
+    setSubmitted(true);
+    e.preventDefault();
+  };
 
-        navigate('/employee/list');
-      } else if (userInfo._id === userId) {
-        dispatch(
-          updateUserProfile({
-            _id: userId,
-            firstName,
-            lastName,
-            telephoneNumber,
-            email,
-            status,
-            department,
-          })
-        );
-      }
-    } catch (error) {
-      console.error();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'department') {
+      setFormValues({ ...formValues, [name]: JSON.parse(value) });
+    } else {
+      setFormValues({ ...formValues, [name]: value });
     }
+    e.preventDefault();
   };
 
-  const cancelHandler = () => {
-    navigate('/employee/list');
+  const validate = (values) => {
+    const errors = {};
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    const regexPhone =
+      /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+
+    if (!values.firstName) {
+      errors.firstName = 'Firstname is required!';
+    } else if (values.firstName.length < 3) {
+      errors.firstName = 'Firstname must be atleast 3 characters long!';
+    } else if (values.firstName.length > 15) {
+      errors.firstName = 'Firstname may not be more than 15 characters!';
+    }
+    if (!values.lastName) {
+      errors.lastName = 'Surname is required!';
+    } else if (values.lastName.length < 3) {
+      errors.lastName = 'Surname must be atleast 3 characters long!';
+    } else if (values.lastName.length > 15) {
+      errors.lastName = 'Surname may not be more than 15 characters!';
+    }
+    if (!values.telephoneNumber) {
+      errors.telephoneNumber = 'Telephone number is required!';
+    } else if (!regexPhone.test(values.telephoneNumber)) {
+      errors.telephoneNumber = 'This is not a valid telephone number format';
+    }
+    if (!values.email) {
+      errors.email = 'Email is required!';
+    } else if (!regexEmail.test(values.email)) {
+      errors.email = 'This is not a valid email format';
+    }
+    if (!values.department) {
+    } else if (values.department === 'select') {
+      errors.department = 'Please choose a valid department!';
+    }
+    if (!values.status) {
+      errors.status = 'Status is required!';
+    } else if (values.status === 'select') {
+      errors.status = 'Please choose a valid status!';
+    }
+
+    return errors;
   };
+
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0 && submitted) {
+      try {
+        if (userInfo.isManager) {
+          dispatch(
+            updateUser({
+              _id: userId,
+              firstName: formValues.firstName,
+              lastName: formValues.lastName,
+              telephoneNumber: formValues.telephoneNumber,
+              email: formValues.email,
+              status: formValues.status,
+              department: formValues.department,
+            })
+          );
+
+          navigate('/employee/list');
+        } else if (userInfo._id === userId) {
+          dispatch(
+            updateUserProfile({
+              _id: userId,
+              firstName: formValues.firstName,
+              lastName: formValues.lastName,
+              telephoneNumber: formValues.telephoneNumber,
+              email: formValues.email,
+              status: formValues.status,
+              department: formValues.department,
+            })
+          );
+        }
+      } catch (error) {
+        console.error();
+      }
+    } else {
+      checkUserDetails();
+      setSubmitted(false);
+    }
+  }, [dispatch, user._id, formErrors]);
 
   const checkUserDetails = () => {
     if (userInfo.isManager) {
       dispatch(getUserDetails(userId));
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setTelephoneNumber(user.telephoneNumber);
-      setEmail(user.email);
-      setStatus(user.status);
-      setDepartment(user.department);
+      setFormValues({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        telephoneNumber: user.telephoneNumber,
+        email: user.email,
+        department: user.department,
+        status: user.status,
+      });
     } else {
-      setFirstName(userInfo.firstName);
-      setLastName(userInfo.lastName);
-      setTelephoneNumber(userInfo.telephoneNumber);
-      setEmail(userInfo.email);
-      setStatus(userInfo.status);
-      setDepartment(userInfo.department);
+      setFormValues({
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        telephoneNumber: userInfo.telephoneNumber,
+        email: userInfo.email,
+        department: userInfo.department,
+        status: userInfo.status,
+      });
     }
   };
 
-  useEffect(() => {
-    checkUserDetails();
-    setDepartmentsArray(departments);
-  }, [dispatch, user._id]);
   return loading ? (
-    'Loading...'
+    <Loader />
   ) : (
     <>
-      <div>
+      <pre>{JSON.stringify(formValues, undefined, 2)}</pre>
+      <div className='ml-8'>
         <div className='mt-6 flex items-center justify-between'>
           <p className='text-2xl'>*Name</p>
-          <input
-            type='text'
-            value={firstName}
-            defaultValue={firstName}
-            placeholder={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className='input input-bordered input-accent w-80'
-          />
+          <div>
+            <input
+              type='text'
+              defaultValue={formValues.firstName}
+              onChange={handleChange}
+              name='firstName'
+              className='input input-bordered input-primary w-80'
+            />
+            <p className='mt-4 text-error'>{formErrors.firstName}</p>
+          </div>
         </div>
         <div className='mt-6 flex items-center justify-between'>
           <p className='text-2xl'>*Surname</p>
-          <input
-            type='text'
-            value={lastName}
-            defaultValue={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className='input input-bordered input-accent w-80'
-          />
+          <div>
+            <input
+              type='text'
+              defaultValue={formValues.lastName}
+              onChange={handleChange}
+              name='lastName'
+              className='input input-bordered input-primary w-80'
+            />
+            <p className='mt-4 text-error'>{formErrors.lastName}</p>
+          </div>
         </div>
         <div className='mt-6 flex items-center justify-between'>
           <p className='text-2xl'>*Telephone Number</p>
-          <input
-            type='text'
-            placeholder={telephoneNumber}
-            value={telephoneNumber}
-            onChange={(e) => setTelephoneNumber(e.target.value)}
-            className='input input-bordered input-accent w-80'
-          />
+          <div>
+            <input
+              type='text'
+              defaultValue={formValues.telephoneNumber}
+              onChange={handleChange}
+              name='telephoneNumber'
+              className='input input-bordered input-primary w-80'
+            />
+            <p className='mt-4 text-error'>{formErrors.telephoneNumber}</p>
+          </div>
         </div>
         <div className='mt-6 flex items-center justify-between'>
           <p className='text-2xl'>*Email Address</p>
-          <input
-            type='text'
-            placeholder={email}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className='input input-bordered input-accent w-80'
-          />
+          <div>
+            <input
+              type='text'
+              value={formValues.email}
+              onChange={handleChange}
+              name='email'
+              className='input input-bordered input-primary w-80'
+            />
+            <p className='mt-4 text-error'>{formErrors.email}</p>
+          </div>
         </div>
         <div className='flex mt-6 items-center justify-between'>
           <p className='text-2xl'>*Department</p>
-          <select
-            className='select select-accent w-80'
-            defaultValue={department}
-            onChange={(e) => {
-              setDepartment(JSON.parse(e.target.value));
-            }}
-          >
-            {departments &&
-              departmentsArray.map((department) => {
-                return (
-                  <option
-                    key={department._id}
-                    value={JSON.stringify(department)}
-                  >
-                    {department.name}
-                  </option>
-                );
-              })}
-          </select>
+          <div>
+            <select
+              className='select select-primary w-80'
+              defaultValue={formValues.department}
+              onChange={handleChange}
+              name='department'
+            >
+              {departments
+                ? departments.map((department) => {
+                    return (
+                      <option
+                        key={department._id}
+                        value={JSON.stringify(department)}
+                      >
+                        {department.name}
+                      </option>
+                    );
+                  })
+                : ''}
+            </select>
+            <p className='mt-4 text-error'>{formErrors.department}</p>
+          </div>
         </div>
 
         <div className='flex mt-6 items-center justify-between'>
           <p className='text-2xl'>*Status</p>
-          <select
-            className='select select-accent w-80'
-            value={status}
-            defaultValue={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option>active</option>
-            <option>deactive</option>
-          </select>
+          <div>
+            <select
+              className='select select-primary w-80'
+              defaultValue={formValues.status}
+              onChange={handleChange}
+              name='status'
+            >
+              <option>active</option>
+              <option>deactive</option>
+            </select>
+            <p className='mt-4 text-error'>{formErrors.status}</p>
+          </div>
         </div>
       </div>
       <div className='flex justify-end my-4 gap-4'>
-        <button className='btn btn-accent' onClick={saveHandler}>
-          Save
+        <button className='btn btn-success gap-2' onClick={saveHandler}>
+          <BiSave size={25} /> Save
         </button>
-        <button className='btn btn-accent' onClick={cancelHandler}>
-          Cancel
-        </button>
+        <Link to='/employee/list'>
+          <button className='btn btn-error gap-2'>
+            <TiCancel size={25} /> Cancel
+          </button>
+        </Link>
       </div>
     </>
   );

@@ -3,11 +3,15 @@ import { useEffect } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { updateDepartment } from '../actions/departmentActions';
+import {
+  listDepartmentsfilter,
+  updateDepartment,
+} from '../actions/departmentActions';
+import Loader from './Loader';
+import NoData from './NoData';
 
 function DepartmentListTable() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const departmentListFilter = useSelector(
     (state) => state.departmentListFilter
   );
@@ -15,40 +19,38 @@ function DepartmentListTable() {
 
   useEffect(() => {}, departmentsfiltered);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     const department = departmentsfiltered.filter(
       (department) => department._id == e.target.value
     )[0];
-    console.log(department);
     if (department.status === 'active') {
-      dispatch(
+      await dispatch(
         updateDepartment({
           _id: department._id,
           status: 'deactive',
         })
       );
     } else {
-      dispatch(
+      await dispatch(
         updateDepartment({
           _id: department._id,
           status: 'active',
         })
       );
     }
-
-    navigate('/');
+    await dispatch(listDepartmentsfilter());
 
     e.preventDefault();
   };
   return loadingDepartment ? (
-    <p className='text-4xl mt-40 ml-40'>Loading...</p>
-  ) : (
+    <Loader />
+  ) : departmentsfiltered[0] ? (
     <div className='overflow-x-auto my-4 px-6'>
-      <div className='border-2 border-primary rounded-xl p-1 mb-4 '>
+      <div className='border-2 border-primary rounded-2xl p-1 mb-4 bg-white'>
         <table className='table w-full'>
           <thead>
             <tr>
-              <th></th>
+              <th className='w-24'></th>
               <th>Name</th>
               <th>Manager</th>
               <th>Status</th>
@@ -59,7 +61,7 @@ function DepartmentListTable() {
               return (
                 <tr key={department._id}>
                   <td>
-                    <div className='flex gap-2'>
+                    <div className='flex gap-2 justify-center items-center'>
                       <Link to={`/department/edit/${department._id}`}>
                         <button className='btn btn-primary btn-outline'>
                           <FaEdit />
@@ -94,6 +96,8 @@ function DepartmentListTable() {
         </table>
       </div>
     </div>
+  ) : (
+    <NoData />
   );
 }
 

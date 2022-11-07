@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-import users from './data/users.js';
-import User from './models/userModel.js';
-import Departments from './models/departmentModel.js';
-import connectDB from './config/db.js';
+import users from './data/users.cjs';
+import User from './models/userModel.cjs';
+import Departments from './models/departmentModel.cjs';
+import connectDB from './config/db.cjs';
 
 dotenv.config();
 

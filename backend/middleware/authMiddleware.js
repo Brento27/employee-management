@@ -19,7 +19,7 @@ const protect = asyncHandler(async (req, res, next) => {
       next();
     } catch (error) {
       console.error(error);
-      res.status(401);
+      res.status(401).json({ message: 'Not authorized, token failed' });
       throw new Error('Not authorized, token failed');
     }
   }
@@ -34,7 +34,7 @@ const manager = (req, res, next) => {
   if (req.user && req.user.isManager) {
     next();
   } else {
-    res.status(401);
+    res.status(401).json({ message: 'Not authorized as an manager' });
     throw new Error('Not authorized as an manager');
   }
 };

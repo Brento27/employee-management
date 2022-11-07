@@ -17,30 +17,28 @@ function Menu() {
     navigate('/department/create');
   };
   return (
-    <div className='border-2 rounded-xl border-primary w-fit bg-white h-fit p-4'>
-      <p className='text-center'>Menu</p>
+    userInfo.isManager && (
+      <div className='border-2 rounded-xl border-primary w-fit bg-white h-fit p-4'>
+        <p className='text-center'>Menu</p>
 
-      {userInfo.isManager && (
-        <>
-          <div className='flex justify-around my-4'>
-            <button
-              className='btn btn-outline p-2  h-fit'
-              onClick={addEmployeeHandler}
-            >
-              <AiOutlineUserAdd size={40} />
-            </button>
-          </div>
-          <div className='flex justify-around mt-4'>
-            <button
-              className='btn btn-outline p-2 h-fit'
-              onClick={addDepartmentHandler}
-            >
-              <HiBuildingStorefront size={40} />
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+        <div className='flex justify-around my-4'>
+          <button
+            className='btn btn-outline p-2  h-fit'
+            onClick={addEmployeeHandler}
+          >
+            <AiOutlineUserAdd size={40} />
+          </button>
+        </div>
+        <div className='flex justify-around mt-4'>
+          <button
+            className='btn btn-outline p-2 h-fit'
+            onClick={addDepartmentHandler}
+          >
+            <HiBuildingStorefront size={40} />
+          </button>
+        </div>
+      </div>
+    )
   );
 }
 

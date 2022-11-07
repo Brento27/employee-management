@@ -10,15 +10,12 @@ import {
   DEPARTMENT_LIST_REQUEST,
   DEPARTMENT_LIST_SUCCESS,
   DEPARTMENT_LIST_FAIL,
-  DEPARTMENT_LIST_RESET,
   DEPARTMENT_LIST_FILTER_REQUEST,
   DEPARTMENT_LIST_FILTER_SUCCESS,
   DEPARTMENT_LIST_FILTER_FAIL,
-  DEPARTMENT_LIST_FILTER_RESET,
   DEPARTMENT_UPDATE_REQUEST,
   DEPARTMENT_UPDATE_SUCCESS,
   DEPARTMENT_UPDATE_FAIL,
-  DEPARTMENT_UPDATE_RESET,
 } from '../constants/departmentConstants';
 import { logout } from './userActions';
 
@@ -83,7 +80,7 @@ export const getDepartmentDetails = (id) => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'Request failed with status code 401') {
       dispatch(logout());
     }
     dispatch({
@@ -120,7 +117,7 @@ export const listDepartments = () => async (dispatch, getState) => {
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'Request failed with status code 401') {
       dispatch(logout());
     }
     dispatch({
@@ -161,7 +158,7 @@ export const listDepartmentsfilter =
         error.response && error.response.data.message
           ? error.response.data.message
           : error.message;
-      if (message === 'Not authorized, token failed') {
+      if (message === 'Request failed with status code 401') {
         dispatch(logout());
       }
       dispatch({
@@ -199,12 +196,14 @@ export const updateDepartment = (department) => async (dispatch, getState) => {
     dispatch({ type: DEPARTMENT_DETAILS_SUCCESS, payload: data });
 
     dispatch({ type: DEPARTMENT_DETAILS_RESET });
+
+    dispatch(listDepartmentsfilter);
   } catch (error) {
     const message =
       error.response && error.response.data.message
         ? error.response.data.message
         : error.message;
-    if (message === 'Not authorized, token failed') {
+    if (message === 'Request failed with status code 401') {
       dispatch(logout());
     }
     dispatch({
